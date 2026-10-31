@@ -7,10 +7,14 @@
  * URL params:
  *   ?size=16          16" laptop: Projection Console (default)
  *   ?size=14          14" laptop: Works Console
- *   ?rotate=cw|ccw    rotate the panel 90° when the OS display cannot be rotated
+ *   ?rotate=ccw|cw|none
+ *                     how the panel sits on a landscape screen. The default, ccw,
+ *                     suits a laptop turned clockwise onto its side (hinge on
+ *                     the left). cw suits the hinge on the right. none is upright.
  *   ?auto=0           disable the phantom operator that works the controls when idle
  *
- * F toggles fullscreen. Each console registers its own keys.
+ * F toggles fullscreen. R cycles the rotation and remembers it on this machine.
+ * Each console registers its own keys.
  */
 (() => {
   'use strict';
@@ -23,7 +27,19 @@
   };
   const params = new URLSearchParams(location.search);
   const P = PROFILES[(params.get('size') || '').replace(/\D/g, '')] || PROFILES[16];
-  const ROT = { cw: 90, ccw: -90 }[params.get('rotate')] || 0;
+
+  // Rotation: URL param, else this machine's saved choice, else hinge-on-the-left.
+  const ROTATIONS = { ccw: -90, cw: 90, none: 0 };
+  const ROT_KEY = 'oz-rotate';
+  let rotation = (() => {
+    const fromUrl = params.get('rotate');
+    if (fromUrl in ROTATIONS) return fromUrl;
+    try {
+      const saved = localStorage.getItem(ROT_KEY);
+      if (saved in ROTATIONS) return saved;
+    } catch { /* storage blocked: fall through to the default */ }
+    return 'ccw';
+  })();
   const AUTO = params.get('auto') !== '0';
 
   // ---------------------------------------------------------------- helpers
@@ -76,12 +92,18 @@
     return s;
   }
 
-  // Scale (and optionally rotate) the fixed-size stage to fill the window.
+  // Rotate the stage, then scale it to fill the window. When the window is
+  // proportionally taller than the design, the stage grows taller (never
+  // narrower) so it fills edge to edge. The extra height spreads into the gaps
+  // between rows. The stretch is capped so a very tall window still letterboxes.
   function fit() {
-    const aw = ROT ? innerHeight : innerWidth;
-    const ah = ROT ? innerWidth : innerHeight;
-    const scale = Math.min(aw / P.w, ah / P.h);
-    stage.style.transform = `translate(-50%, -50%) rotate(${ROT}deg) scale(${scale})`;
+    const rot = ROTATIONS[rotation];
+    const aw = rot ? innerHeight : innerWidth;
+    const ah = rot ? innerWidth : innerHeight;
+    const h = Math.round(clamp((P.w * ah) / aw, P.h, P.h * 1.25));
+    stage.style.height = h + 'px';
+    const scale = Math.min(aw / P.w, ah / h);
+    stage.style.transform = `translate(-50%, -50%) rotate(${rot}deg) scale(${scale})`;
     const k = scale * (devicePixelRatio || 1);
     canvases.forEach((c) => c.resize(k));
   }
@@ -271,6 +293,7 @@
 
     return {
       init() {
+        emitters.length = 0;
         document.querySelectorAll('.pipe.left .valve').forEach((v) => addEmitter(v, 110, -40, 1, 3, 9));
         document.querySelectorAll('.pipe.right .valve').forEach((v) => addEmitter(v, -110, -40, 1, 3, 9));
         document.querySelectorAll('.steam-up').forEach((v) => addEmitter(v, 0, -55, 0.55, 2, 7));
@@ -370,6 +393,7 @@
     markActive();
     if (e.repeat) return;
     if (e.key === 'f' || e.key === 'F') return toggleFullscreen();
+    if (e.key === 'r' || e.key === 'R') return cycleRotation();
     const fn = OZ.keys[e.key] || OZ.keys[e.key.toLowerCase()];
     if (fn) {
       e.preventDefault();
@@ -380,11 +404,22 @@
     if (!e.target.closest('.control') && !document.fullscreenElement) toggleFullscreen();
   });
 
+  // Re-fit, then re-read steam emitter positions, which move when the stage height changes.
+  function refit() {
+    fit();
+    if (OZ.steam) OZ.steam.init();
+  }
+  function cycleRotation() {
+    const order = Object.keys(ROTATIONS);
+    rotation = order[(order.indexOf(rotation) + 1) % order.length];
+    try { localStorage.setItem(ROT_KEY, rotation); } catch { /* not saved; still applies now */ }
+    refit();
+  }
+
   // ---------------------------------------------------------------- boot
   OZ.boot = () => {
     stage.classList.add(P.cls);
     stage.style.width = P.w + 'px';
-    stage.style.height = P.h + 'px';
     $('#mark').textContent = P.mark;
 
     const tpl = document.getElementById('console-' + P.console);
@@ -403,7 +438,7 @@
       })();
     }
 
-    addEventListener('resize', fit);
+    addEventListener('resize', refit);
     fit();
     // Steam emitters read element positions, so wait until fonts settle the layout.
     document.fonts.ready.then(() => OZ.steam.init());

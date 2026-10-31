@@ -17,6 +17,16 @@ Open the URL that matches each laptop:
 
 You can also open `index.html` directly from disk.
 
+## Setting up the laptops
+
+The panels are tall and narrow, so each laptop stands on its side like a book. The display stays in normal landscape mode. The page rotates the panel 90° and stretches it to fill the screen.
+
+1. Turn each laptop clockwise onto its side, so the hinge is on the left.
+2. Open its URL and press `F` for fullscreen.
+3. If the panel is upside down, press `R`. It cycles through the three rotations: hinge on the left, hinge on the right, then upright (no rotation). Each laptop remembers its choice.
+
+No keyboard or mouse is needed after that. After 12 seconds without input, a phantom operator starts working a random control every 6–13 seconds. On the 16" it pulls levers. On the 14" it dispenses boons, flips switches and then flips them back, and now and then rings the alarm.
+
 ## The consoles
 
 **Projection Console (16")** holds the Wizard's showmanship. It has a crystal ball, gauges, an oscilloscope, digit counters and a bank of six levers.
@@ -45,19 +55,21 @@ You can also open `index.html` directly from disk.
 
 The oracle board reports every action.
 
-On both consoles, `F` or a double-click toggles fullscreen. The cursor hides after 2.5 seconds without movement.
+On both consoles, `F` or a double-click toggles fullscreen, and `R` cycles the rotation. The cursor hides after 2.5 seconds without movement.
 
 ## Options
 
 | Param | Effect |
 | --- | --- |
 | `size=16` / `size=14` | Selects the screen size and its console. |
-| `rotate=cw` / `rotate=ccw` | Rotates the panel 90° inside a landscape window. Use this when macOS will not rotate the built-in display. |
+| `rotate=ccw` / `rotate=cw` / `rotate=none` | Sets the rotation and overrides the saved `R` choice. `ccw` (the default) suits the hinge on the left. `cw` suits the hinge on the right. `none` is for an upright portrait display. |
 | `auto=0` | Turns off the phantom operator. By default it works a random control after 12 seconds without input. |
 
 ## Sizing
 
-Each console is built at the portrait CSS-pixel size of its screen at the default "looks like" resolution. The 16" is 1117×1728 and the 14" is 982×1512. Both screens have the same pixel density, so shared parts such as plates, rivets and pipes appear at the same physical size side by side. The page scales the whole stage to fit the window, so either console still works at other resolutions.
+Each console is built at the portrait CSS-pixel size of its screen at the default "looks like" resolution. The 16" is 1117×1728 and the 14" is 982×1512. Both screens have the same pixel density, so shared parts such as plates, rivets and pipes appear at the same physical size side by side.
+
+The page scales the whole panel to fit the window. When the window is proportionally taller than the design, for example in fullscreen on a notched MacBook, the panel grows taller and spreads the extra space between rows. That way it fills the screen with no black bars.
 
 ## Files
 
