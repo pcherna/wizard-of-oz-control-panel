@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Wizard's Control Panel</title>
+  <link rel="preload" href="fonts/cinzel.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/cinzel-decorative-900.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/console-main.css">
+  <link rel="stylesheet" href="css/console-works.css">
+</head>
+<body>
+  <!-- Shared SVG paint servers, referenced by every inline SVG on the page -->
+  <svg class="defs" width="0" height="0" aria-hidden="true">
+    <defs>
+      <linearGradient id="brassRing" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#fbeaa8"/>
+        <stop offset=".28" stop-color="#c99d45"/>
+        <stop offset=".55" stop-color="#6e4c16"/>
+        <stop offset=".78" stop-color="#d9b464"/>
+        <stop offset="1" stop-color="#7a5519"/>
+      </linearGradient>
+      <linearGradient id="brassRingRev" x1="1" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="#fbeaa8"/>
+        <stop offset=".28" stop-color="#c99d45"/>
+        <stop offset=".55" stop-color="#6e4c16"/>
+        <stop offset=".78" stop-color="#d9b464"/>
+        <stop offset="1" stop-color="#7a5519"/>
+      </linearGradient>
+      <radialGradient id="gaugeFace" cx=".45" cy=".38" r=".75">
+        <stop offset="0" stop-color="#f3f6df"/>
+        <stop offset=".65" stop-color="#d3ddb0"/>
+        <stop offset="1" stop-color="#98a878"/>
+      </radialGradient>
+      <radialGradient id="hubGrad" cx=".35" cy=".3" r=".8">
+        <stop offset="0" stop-color="#fff3c4"/>
+        <stop offset=".4" stop-color="#c99d45"/>
+        <stop offset="1" stop-color="#4a300a"/>
+      </radialGradient>
+      <linearGradient id="glare" x1="0" y1="0" x2=".6" y2="1">
+        <stop offset="0" stop-color="#fff" stop-opacity=".55"/>
+        <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="gearFill" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#f0d68a"/>
+        <stop offset=".45" stop-color="#a77a2c"/>
+        <stop offset="1" stop-color="#5e3f12"/>
+      </linearGradient>
+      <linearGradient id="gearCopper" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#e9a77a"/>
+        <stop offset=".5" stop-color="#9a5530"/>
+        <stop offset="1" stop-color="#4d2410"/>
+      </linearGradient>
+      <linearGradient id="gearDark" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#4f7a5c"/>
+        <stop offset="1" stop-color="#173022"/>
+      </linearGradient>
+      <radialGradient id="ozGlass" cx=".5" cy=".4" r=".7">
+        <stop offset="0" stop-color="#1f6a40"/>
+        <stop offset=".7" stop-color="#062012"/>
+        <stop offset="1" stop-color="#020a05"/>
+      </radialGradient>
+      <radialGradient id="bakelite" cx=".4" cy=".35" r=".75">
+        <stop offset="0" stop-color="#5a5248"/>
+        <stop offset=".55" stop-color="#1e1a16"/>
+        <stop offset="1" stop-color="#060504"/>
+      </radialGradient>
+      <radialGradient id="bakeliteCap" cx=".38" cy=".3" r=".8">
+        <stop offset="0" stop-color="#6e655a"/>
+        <stop offset=".6" stop-color="#2a2420"/>
+        <stop offset="1" stop-color="#0c0a08"/>
+      </radialGradient>
+      <linearGradient id="emeraldTable" x1="0" y1="0" x2=".8" y2="1">
+        <stop offset="0" stop-color="#8dffbd"/>
+        <stop offset=".5" stop-color="#22b85e"/>
+        <stop offset="1" stop-color="#0a5a2c"/>
+      </linearGradient>
+      <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="4"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <div id="stage">
+    <div id="backdrop">
+      <svg id="bgGears" aria-hidden="true"></svg>
+      <div class="pipe left"></div>
+      <div class="pipe right"></div>
+    </div>
+
+    <div id="rig">
+      <header class="header">
+        <svg class="gear-cluster" id="gearsL" viewBox="0 0 300 200"></svg>
+        <svg class="medallion" id="medallion" viewBox="-100 -100 200 200"></svg>
+        <svg class="gear-cluster" id="gearsR" viewBox="0 0 300 200"></svg>
+      </header>
+
+      <!-- The console template for this screen size is inserted here. -->
+
+      <footer class="ticker">
+        <div class="plate mark" id="mark"></div>
+        <div class="ticker-window"><div class="ticker-track" id="ticker"></div></div>
+        <div class="plate mark" id="markR"></div>
+      </footer>
+    </div>
+
+    <canvas id="steam"></canvas>
+    <div id="flash"></div>
+  </div>
+
+  <!-- 16": Projection Console -->
+  <template id="console-main">
+    <section class="orb-row">
+      <div class="tube-bank" id="bankL"></div>
+      <div class="orb-wrap">
+        <div class="orb-frame" id="orbFrame">
+          <div class="orb"><canvas id="orb"></canvas></div>
+        </div>
+        <div class="orb-stand"></div>
+      </div>
+      <div class="tube-bank" id="bankR"></div>
+    </section>
+
+    <section class="gauge-row" id="gauges"></section>
+
+    <section class="instrument-row">
+      <div class="panel scope-panel">
+        <div class="scope-screen">
+          <canvas id="scope"></canvas>
+          <div class="graticule"></div>
+        </div>
+        <div class="plate">Aetheric Resonance</div>
+      </div>
+      <div class="panel nixie-panel" id="nixies"></div>
+    </section>
+
+    <section class="panel lever-row">
+      <div class="lamps" id="lamps"></div>
+      <div class="levers" id="levers"></div>
+    </section>
+  </template>
+
+  <!-- 14": Works Console -->
+  <template id="console-works">
+    <section class="feature-row">
+      <div class="ladder-bay">
+        <div class="ladder-glass"><canvas class="ladder"></canvas></div>
+        <div class="ladder-base"></div>
+        <div class="plate">Arc Generator</div>
+      </div>
+      <div class="radar-wrap">
+        <div class="radar-frame" id="radarFrame">
+          <div class="radar">
+            <canvas id="radar"></canvas>
+            <div class="curtain left"></div>
+            <div class="curtain right"></div>
+          </div>
+        </div>
+        <div class="plate">Witch &amp; Monkey Detector</div>
+      </div>
+      <div class="ladder-bay">
+        <div class="ladder-glass"><canvas class="ladder"></canvas></div>
+        <div class="ladder-base"></div>
+        <div class="plate">Arc Generator</div>
+      </div>
+    </section>
+
+    <section class="panel boon-row">
+      <div class="selector-bay">
+        <svg id="selector" class="control" viewBox="-110 -70 220 160"></svg>
+        <div class="plate">Boon Selector</div>
+      </div>
+      <div class="meters" id="meters"></div>
+      <div class="plunger-bay">
+        <div class="plunger control" id="plunger"><div class="plunger-cap"></div></div>
+        <div class="plate">Dispense</div>
+      </div>
+    </section>
+
+    <section class="panel flap-row">
+      <div class="flaps" id="flaps"></div>
+      <div class="plate">Oracle Board</div>
+    </section>
+
+    <section class="panel switch-row">
+      <div class="toggles" id="toggles"></div>
+      <div class="alarm-bay">
+        <div class="alarm control" id="alarm"><div class="alarm-cap"></div></div>
+        <div class="plate">Alarm</div>
+      </div>
+    </section>
+  </template>
+
+  <script src="js/core.js"></script>
+  <script src="js/console-main.js"></script>
+  <script src="js/console-works.js"></script>
+  <script>OZ.boot();</script>
+</body>
+</html>
